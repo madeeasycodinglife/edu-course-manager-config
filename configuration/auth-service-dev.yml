@@ -1,6 +1,4 @@
-server:
-  port: 8083
-
+spring:
   output:
     ansi:
       enabled: ALWAYS
@@ -38,9 +36,6 @@ server:
           max-idle: 8
           min-idle: 0
           max-wait: -1
-
-
-
 security:
   authorization:
     paths:
