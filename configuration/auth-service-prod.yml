@@ -44,7 +44,7 @@ security:
     paths:
       - path: /auth-service/sign-up
         method: POST
-        roles: ${SECURITY_AUTHORIZATION_PATHS_SIGNUP_ROLES:ROLE_ADMIN, ROLE_USER}
+        roles: ${SECURITY_AUTHORIZATION_PATHS_SIGNUP_ROLES:}
       - path: /auth-service/sign-in
         method: POST
         roles: ${SECURITY_AUTHORIZATION_PATHS_SIGNIN_ROLES:}
