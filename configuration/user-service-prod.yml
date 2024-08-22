@@ -1,89 +1,101 @@
 spring:
   output:
     ansi:
-      enabled: ALWAYS
+      enabled: ${SPRING_OUTPUT_ANSI_ENABLED:ALWAYS}
   threads:
     virtual:
-      enabled: true
+      enabled: ${SPRING_THREADS_VIRTUAL_ENABLED:true}
   main:
-    allow-circular-references: true
+    allow-circular-references: ${SPRING_MAIN_ALLOW_CIRCULAR_REFERENCES:true}
   cache:
-    type: redis
+    type: ${SPRING_CACHE_TYPE:redis}
   data:
     redis:
-      host: ${SPRING_REDIS_HOST:localhost}
-      port: ${SPRING_REDIS_PORT:6379}
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
       lettuce:
         pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
-          max-wait: -1
+          max-active: ${SPRING_DATA_REDIS_LETTUCE_POOL_MAX_ACTIVE:8}
+          max-idle: ${SPRING_DATA_REDIS_LETTUCE_POOL_MAX_IDLE:8}
+          min-idle: ${SPRING_DATA_REDIS_LETTUCE_POOL_MIN_IDLE:0}
+          max-wait: ${SPRING_DATA_REDIS_LETTUCE_POOL_MAX_WAIT:-1}
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:user-service}
     username: ${SPRING_DATASOURCE_USERNAME:sa}
     password: ${SPRING_DATASOURCE_PASSWORD:sa}
-    driver-class-name: org.h2.Driver
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
   jpa:
     hibernate:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create-drop}
     show-sql: ${SPRING_JPA_SHOW_SQL:true}
   h2:
     console:
-      path: /h2-console
+      path: ${SPRING_H2_CONSOLE_PATH:/h2-console}
       enabled: ${SPRING_H2_CONSOLE_ENABLED:true}
   mvc:
-    throw-exception-if-no-handler-found: true
+    throw-exception-if-no-handler-found: ${SPRING_MVC_THROW_EXCEPTION_IF_NO_HANDLER_FOUND:true}
   web:
     resources:
-      add-mappings: false
+      add-mappings: ${SPRING_WEB_RESOURCES_ADD_MAPPINGS:false}
+
+security:
+  authorization:
+    paths:
+      - path: ${SECURITY_AUTHORIZATION_PATHS_0_PATH:/user-service/create}
+        method: ${SECURITY_AUTHORIZATION_PATHS_0_METHOD:POST}
+        roles: ${SECURITY_AUTHORIZATION_PATHS_0_ROLES:[]}
+      - path: ${SECURITY_AUTHORIZATION_PATHS_1_PATH:/user-service/full-update/**}
+        method: ${SECURITY_AUTHORIZATION_PATHS_1_METHOD:PUT}
+        roles: ${SECURITY_AUTHORIZATION_PATHS_1_ROLES:[ROLE_ADMIN, ROLE_USER]}
+      - path: ${SECURITY_AUTHORIZATION_PATHS_2_PATH:/user-service/partial-update/**}
+        method: ${SECURITY_AUTHORIZATION_PATHS_2_METHOD:PATCH}
+        roles: ${SECURITY_AUTHORIZATION_PATHS_2_ROLES:[ROLE_ADMIN, ROLE_USER]}
+      - path: ${SECURITY_AUTHORIZATION_PATHS_3_PATH:/user-service/delete/**}
+        method: ${SECURITY_AUTHORIZATION_PATHS_3_METHOD:DELETE}
+        roles: ${SECURITY_AUTHORIZATION_PATHS_3_ROLES:[ROLE_ADMIN, ROLE_USER]}
+      - path: ${SECURITY_AUTHORIZATION_PATHS_4_PATH:/user-service/{emailId}}
+        method: ${SECURITY_AUTHORIZATION_PATHS_4_METHOD:GET}
+        roles: ${SECURITY_AUTHORIZATION_PATHS_4_ROLES:[ROLE_ADMIN, ROLE_USER]}
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
-    registry-fetch-interval-seconds: 2
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+    registry-fetch-interval-seconds: ${EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS:2}
   instance:
-    prefer-ip-address: true
-    lease-renewal-interval-in-seconds: 3
-    lease-expiration-duration-in-seconds: 5
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true}
+    lease-renewal-interval-in-seconds: ${EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS:3}
+    lease-expiration-duration-in-seconds: ${EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS:5}
 
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:*}
   health:
     circuitbreakers:
-      enabled: true
+      enabled: ${MANAGEMENT_HEALTH_CIRCUITBREAKERS_ENABLED:true}
   endpoint:
     health:
-      show-details: ALWAYS
+      show-details: ${MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS:ALWAYS}
   tracing:
-    enabled: true
+    enabled: ${MANAGEMENT_TRACING_ENABLED:true}
     sampling:
-      probability: 1.0
+      probability: ${MANAGEMENT_TRACING_SAMPLING_PROBABILITY:1.0}
   zipkin:
     tracing:
-      endpoint: ${ZIPKIN_TRACING_ENDPOINT:http://localhost:9411/api/v2/spans}
+      endpoint: ${MANAGEMENT_ZIPKIN_TRACING_ENDPOINT:http://localhost:9411/api/v2/spans}
 
 resilience4j:
   circuitbreaker:
     instances:
       myCircuitBreaker:
-        registerHealthIndicator: true
-        failureRateThreshold: 20
-        minimumNumberOfCalls: 5
-        slidingWindowSize: 10
-        waitDurationInOpenState: 5s
-        permittedNumberOfCallsInHalfOpenState: 3
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-        slidingWindowType: COUNT_BASED
-
-  retry:
-    instances:
-      myRetry:
-        registerHealthIndicator: true
-        retryCount: 3
-        waitDuration: 2s
+        registerHealthIndicator: ${RESILIENCE4J_CIRCUITBREAKER_INSTANCES_MY_CIRCUITBREAKER_REGISTER_HEALTH_INDICATOR:true}
+        failureRateThreshold: ${RESILIENCE4J_CIRCUITBREAKER_INSTANCES_MY_CIRCUITBREAKER_FAILURE_RATE_THRESHOLD:20}
+        minimumNumberOfCalls: ${RESILIENCE4J_CIRCUITBREAKER_INSTANCES_MY_CIRCUITBREAKER_MINIMUM_NUMBER_OF_CALLS:5}
+        slidingWindowSize: ${RESILIENCE4J_CIRCUITBREAKER_INSTANCES_MY_CIRCUITBREAKER_SLIDING_WINDOW_SIZE:10}
+        waitDurationInOpenState: ${RESILIENCE4J_CIRCUITBREAKER_INSTANCES_MY_CIRCUITBREAKER_WAIT_DURATION_IN_OPEN_STATE:5s}
+        permittedNumberOfCallsInHalfOpenState: ${RESILIENCE4J_CIRCUITBREAKER_INSTANCES_MY_CIRCUITBREAKER_PERMITTED_NUMBER_OF_CALLS_IN_HALF_OPEN_STATE:3}
+        automaticTransitionFromOpenToHalfOpenEnabled: ${RESILIENCE4J_CIRCUITBREAKER_INSTANCES_MY_CIRCUITBREAKER_AUTOMATIC_TRANSITION_FROM_OPEN_TO_HALF_OPEN_ENABLED:true}
+        slidingWindowType: ${RESILIENCE4J_CIRCUITBREAKER_INSTANCES_MY_CIRCUITBREAKER_SLIDING_WINDOW_TYPE:COUNT_BASED}
