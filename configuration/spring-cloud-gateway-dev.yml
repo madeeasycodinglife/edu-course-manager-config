@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   cloud:
     gateway:
@@ -87,11 +90,13 @@ spring:
                   burstCapacity: 100  # Maximum number of tokens
                   requestedTokens: 1  # Number of tokens required per request
                 key-resolver: "#{@ipKeyResolver}"  # key resolver to limit by IP address
-
-
-    output:
+  output:
     ansi:
       enabled: ALWAYS
+
+
+
+
 
 management:
   endpoints:
@@ -131,6 +136,7 @@ resilience4j:
     instances:
       fault-service:
         timeoutDuration: 15s
+
 
 
 
