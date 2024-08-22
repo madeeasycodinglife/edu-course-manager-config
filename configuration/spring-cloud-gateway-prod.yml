@@ -1,0 +1,143 @@
+spring:
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=${spring.cloud.gateway.default-filters.dedupe-response-header:Access-Control-Allow-Origin}
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: ${spring.cloud.gateway.globalcors.cors-configurations[/**].allowed-origins:http://localhost:5173}
+            allowed-methods: ${spring.cloud.gateway.globalcors.cors-configurations[/**].allowed-methods:*}
+            allowed-headers: ${spring.cloud.gateway.globalcors.cors-configurations[/**].allowed-headers:*}
+            allow-credentials: ${spring.cloud.gateway.globalcors.cors-configurations[/**].allow-credentials:true}
+
+      discovery:
+        locator:
+          enabled: ${spring.cloud.gateway.discovery.locator.enabled:true}
+
+      routes:
+
+        - id: course-service
+          uri: ${spring.cloud.gateway.routes.course-service.uri:lb://course-service}
+          predicates:
+            - Path=${spring.cloud.gateway.routes.course-service.predicates.path:/api/courses/**}
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: fault-service
+                fallbackUri: forward:/fallback/course-service
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter:
+                  replenishRate: ${spring.cloud.gateway.routes.course-service.filters.request-rate-limiter.replenish-rate:50}
+                  burstCapacity: ${spring.cloud.gateway.routes.course-service.filters.request-rate-limiter.burst-capacity:100}
+                  requestedTokens: ${spring.cloud.gateway.routes.course-service.filters.request-rate-limiter.requested-tokens:1}
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: course-instance-service
+          uri: ${spring.cloud.gateway.routes.course-instance-service.uri:lb://course-instance-service}
+          predicates:
+            - Path=${spring.cloud.gateway.routes.course-instance-service.predicates.path:/api/instances/**}
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: fault-service
+                fallbackUri: forward:/fallback/instance-service
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter:
+                  replenishRate: ${spring.cloud.gateway.routes.course-instance-service.filters.request-rate-limiter.replenish-rate:50}
+                  burstCapacity: ${spring.cloud.gateway.routes.course-instance-service.filters.request-rate-limiter.burst-capacity:100}
+                  requestedTokens: ${spring.cloud.gateway.routes.course-instance-service.filters.request-rate-limiter.requested-tokens:1}
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: auth-service
+          uri: ${spring.cloud.gateway.routes.auth-service.uri:lb://auth-service}
+          predicates:
+            - Path=${spring.cloud.gateway.routes.auth-service.predicates.path:/auth-service/**}
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: fault-service
+                fallbackUri: forward:/fallback/auth-service
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter:
+                  replenishRate: ${spring.cloud.gateway.routes.auth-service.filters.request-rate-limiter.replenish-rate:50}
+                  burstCapacity: ${spring.cloud.gateway.routes.auth-service.filters.request-rate-limiter.burst-capacity:100}
+                  requestedTokens: ${spring.cloud.gateway.routes.auth-service.filters.request-rate-limiter.requested-tokens:1}
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: user-service
+          uri: ${spring.cloud.gateway.routes.user-service.uri:lb://user-service}
+          predicates:
+            - Path=${spring.cloud.gateway.routes.user-service.predicates.path:/user-service/**}
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: fault-service
+                fallbackUri: forward:/fallback/user-service
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter:
+                  replenishRate: ${spring.cloud.gateway.routes.user-service.filters.request-rate-limiter.replenish-rate:50}
+                  burstCapacity: ${spring.cloud.gateway.routes.user-service.filters.request-rate-limiter.burst-capacity:100}
+                  requestedTokens: ${spring.cloud.gateway.routes.user-service.filters.request-rate-limiter.requested-tokens:1}
+                key-resolver: "#{@ipKeyResolver}"
+
+  output:
+    ansi:
+      enabled: ${spring.output.ansi.enabled:ALWAYS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${management.endpoints.web.exposure.include:*}
+  health:
+    circuitbreakers:
+      enabled: ${management.health.circuitbreakers.enabled:true}
+  endpoint:
+    health:
+      show-details: ${management.endpoint.health.show-details:ALWAYS}
+  tracing:
+    enabled: ${management.tracing.enabled:true}
+    sampling:
+      probability: ${management.tracing.sampling.probability:1.0}
+  zipkin:
+    tracing:
+      endpoint: ${management.zipkin.tracing.endpoint:http://localhost:9411/api/v2/spans}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      fault-service:
+        registerHealthIndicator: ${resilience4j.circuitbreaker.instances.fault-service.registerHealthIndicator:true}
+        failureRateThreshold: ${resilience4j.circuitbreaker.instances.fault-service.failureRateThreshold:50}
+        minimumNumberOfCalls: ${resilience4j.circuitbreaker.instances.fault-service.minimumNumberOfCalls:5}
+        slidingWindowSize: ${resilience4j.circuitbreaker.instances.fault-service.slidingWindowSize:10}
+        waitDurationInOpenState: ${resilience4j.circuitbreaker.instances.fault-service.waitDurationInOpenState:10000}
+        permittedNumberOfCallsInHalfOpenState: ${resilience4j.circuitbreaker.instances.fault-service.permittedNumberOfCallsInHalfOpenState:3}
+        automaticTransitionFromOpenToHalfOpenEnabled: ${resilience4j.circuitbreaker.instances.fault-service.automaticTransitionFromOpenToHalfOpenEnabled:true}
+        slidingWindowType: ${resilience4j.circuitbreaker.instances.fault-service.slidingWindowType:COUNT_BASED}
+
+  timelimiter:
+    instances:
+      fault-service:
+        timeoutDuration: ${resilience4j.timelimiter.instances.fault-service.timeoutDuration:15s}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${eureka.client.service-url.defaultZone:http://localhost:8761/eureka/}
+    registry-fetch-interval-seconds: ${eureka.client.registry-fetch-interval-seconds:5}
+  instance:
+    prefer-ip-address: ${eureka.instance.prefer-ip-address:true}
+    lease-renewal-interval-in-seconds: ${eureka.instance.lease-renewal-interval-in-seconds:10}
+    lease-expiration-duration-in-seconds: ${eureka.instance.lease-expiration-duration-in-seconds:30}
+
+logging:
+  level:
+    org.springframework.cloud.gateway: ${logging.level.org.springframework.cloud.gateway:INFO}
+    org.springframework.web: ${logging.level.org.springframework.web:INFO}
+    org.springframework.boot: ${logging.level.org.springframework.boot:INFO}
