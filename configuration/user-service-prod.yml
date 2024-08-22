@@ -5,6 +5,10 @@ spring:
   threads:
     virtual:
       enabled: ${SPRING_THREADS_VIRTUAL_ENABLED:true}
+  kafka:
+    bootstrap-servers:
+      - ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  
   main:
     allow-circular-references: ${SPRING_MAIN_ALLOW_CIRCULAR_REFERENCES:true}
   cache:
