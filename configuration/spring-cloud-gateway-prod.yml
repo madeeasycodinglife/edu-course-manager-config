@@ -138,7 +138,7 @@ eureka:
   instance:
     hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}  # Add the hostname property here
     prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true}
-    lease-renewal-interval-in-seconds: ${EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS:10}
+    lease-renewal-interval-in-seconds: ${EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS:30}
     lease-expiration-duration-in-seconds: ${EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS:90}
 
 
