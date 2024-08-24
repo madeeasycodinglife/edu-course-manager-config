@@ -126,7 +126,7 @@ resilience4j:
   timelimiter:
     instances:
       fault-service:
-        timeoutDuration: ${RESILIENCE4J_TIMELIMITER_INSTANCES_FAULT_SERVICE_TIMEOUTDURATION:15s}
+        timeoutDuration: ${RESILIENCE4J_TIMELIMITER_INSTANCES_FAULT_SERVICE_TIMEOUTDURATION:20s}
 
 eureka:
   client:
