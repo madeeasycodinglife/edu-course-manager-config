@@ -132,7 +132,7 @@ resilience4j:
   timelimiter:
     instances:
       fault-service:
-        timeoutDuration: 15s
+        timeoutDuration: 20s
 
 
 
